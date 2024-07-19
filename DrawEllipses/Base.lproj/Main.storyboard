@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="32700.99.1234" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+    <device id="retina6_72" orientation="landscape" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22685"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--Editor View Controller-->
+        <scene sceneID="tne-QT-ifu">
+            <objects>
+                <viewController id="BYZ-38-t0r" customClass="EditorViewController" customModule="DrawEllipses" customModuleProvider="target" sceneMemberID="viewController">
+                    <stackView key="view" opaque="NO" contentMode="scaleToFill" id="vPd-cc-h7A">
+                        <rect key="frame" x="0.0" y="0.0" width="932" height="430"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <subviews>
+                            <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="bdo-3L-lGT">
+                                <rect key="frame" x="0.0" y="0.0" width="857" height="430"/>
+                                <connections>
+                                    <segue destination="c2e-Lc-2YF" kind="embed" id="dfy-FC-Sqw"/>
+                                </connections>
+                            </containerView>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" alignment="center" spacing="20" translatesAutoresizingMaskIntoConstraints="NO" id="qTk-H2-B24">
+                                <rect key="frame" x="857" y="0.0" width="75" height="430"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="I8z-qG-BdY" userLabel="Undo Button">
+                                        <rect key="frame" x="12.666666666666625" y="0.0" width="49.666666666666657" height="205"/>
+                                        <state key="normal" title="Button"/>
+                                        <buttonConfiguration key="configuration" style="gray" image="arrow.uturn.left" catalog="system">
+                                            <color key="baseBackgroundColor" systemColor="systemGray2Color"/>
+                                        </buttonConfiguration>
+                                        <connections>
+                                            <action selector="performUndo:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Gg8-Ca-QrI"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="E54-bn-maa" userLabel="Redo Button">
+                                        <rect key="frame" x="12.666666666666625" y="225" width="49.666666666666657" height="205"/>
+                                        <state key="normal" title="Button"/>
+                                        <buttonConfiguration key="configuration" style="gray" image="arrow.uturn.right" catalog="system">
+                                            <color key="baseBackgroundColor" systemColor="systemGray2Color"/>
+                                        </buttonConfiguration>
+                                        <connections>
+                                            <action selector="performRedo:" destination="BYZ-38-t0r" eventType="touchUpInside" id="ElC-hQ-MVb"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                            </stackView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="hA6-Pc-hg8"/>
+                        <constraints>
+                            <constraint firstItem="qTk-H2-B24" firstAttribute="trailing" secondItem="bdo-3L-lGT" secondAttribute="trailing" constant="75" id="nKe-Vd-OZ2"/>
+                        </constraints>
+                    </stackView>
+                    <connections>
+                        <outlet property="redoButton" destination="E54-bn-maa" id="SoM-2T-3S2"/>
+                        <outlet property="undoButton" destination="I8z-qG-BdY" id="lqP-dw-9cY"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="53.433476394849791" y="-37.674418604651166"/>
+        </scene>
+        <!--Draw Scene View Controller-->
+        <scene sceneID="gvH-w8-70I">
+            <objects>
+                <viewController id="c2e-Lc-2YF" customClass="DrawSceneViewController" customModule="DrawEllipses" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="XaY-MQ-iGj" customClass="DrawSceneView" customModule="DrawEllipses" customModuleProvider="target">
+                        <rect key="frame" x="0.0" y="0.0" width="493" height="320"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="jsf-g5-oeF"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="42M-pP-7D3" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+                <pongPressGestureRecognizer allowableMovement="10" minimumPressDuration="0.5" id="PrK-4A-90n">
+                    <connections>
+                        <action selector="handleLongPress:" destination="c2e-Lc-2YF" id="ErX-Ev-8eh"/>
+                    </connections>
+                </pongPressGestureRecognizer>
+            </objects>
+            <point key="canvasLocation" x="54" y="1021"/>
+        </scene>
+    </scenes>
+    <resources>
+        <image name="arrow.uturn.left" catalog="system" width="128" height="113"/>
+        <image name="arrow.uturn.right" catalog="system" width="128" height="113"/>
+        <systemColor name="systemGray2Color">
+            <color red="0.68235294120000001" green="0.68235294120000001" blue="0.69803921570000005" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
+    </resources>
+</document>
