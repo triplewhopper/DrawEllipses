@@ -80,10 +80,10 @@ https://github.com/user-attachments/assets/4de0d732-f56a-4e66-bdca-c6c3edcb3f71
 ### ユーザー2 L.K.さん
 - 説明なしでsample0.pngおよびsample1.pngのモデリングに成功
   <figure>
-  <img src="./user2_sample0.PNG" /> <figcaption>ユーザー1によるsample0のモデリング</figcaption>
+  <img src="./user2_sample0.PNG" /> <figcaption>ユーザー2によるsample0のモデリング</figcaption>
   </figure>
   <figure>
-  <img src="./user2_sample0.PNG" /> <figcaption>ユーザー1によるsample1のモデリング</figcaption>
+  <img src="./user2_sample0.PNG" /> <figcaption>ユーザー2によるsample1のモデリング</figcaption>
   </figure>
 - 自力で発見出来なかった点
   - 複数の楕円が同時操作可能な点
