@@ -53,7 +53,7 @@ https://github.com/user-attachments/assets/4de0d732-f56a-4e66-bdca-c6c3edcb3f71
 
       
 ## ユーザーテスト
-- ユーザー1
+### ユーザー1　J.T.さん
   - 説明なしでsample0.pngおよびsample1.pngのモデリングに成功
     <figure>
     <img src="./user1_sample0.PNG" /> <figcaption>ユーザー1によるsample0のモデリング</figcaption>
@@ -76,3 +76,15 @@ https://github.com/user-attachments/assets/4de0d732-f56a-4e66-bdca-c6c3edcb3f71
 - 手書きスケッチを優先的に認識するようにした
 
 再度ユーザー1にテストしてもらったところ, 使いやすくなったとの意見をもらった。
+
+### ユーザー2 L.K.さん
+- 説明なしでsample0.pngおよびsample1.pngのモデリングに成功
+- 自力で発見出来なかった点
+  - 複数の楕円が同時操作可能な点
+- 使いやすかった点
+  - アプリの反応が素早い
+- 使いにくかった点
+  - 楕円が小さくなると指での微調整が難しくなる
+  - 楕円の内側から描画すると楕円の移動として誤認識される
+
+アプリを更新したら再度ユーザー2にテストしてもらったところ, 同じように使いやすくなったとの意見をもらった。
