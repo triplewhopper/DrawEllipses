@@ -203,6 +203,17 @@ class DrawSceneViewController: UIViewController, UIEditMenuInteractionDelegate, 
     func informEllipseWasUpdated(_ controller: EllipseViewController) {
         self.undoManager?.registerUndo(withTarget: controller, selector: #selector(EllipseViewController.undo), object: nil)
     }
+    
+//    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+//        for child in self.children {
+//            if let vc = child as? EllipseViewController {
+//                if vc.pinchPolicy != .unselected && vc.insideEllipse(touch.location(in: vc.view)) {
+//                    return false
+//                }
+//            }
+//        }
+//        return true
+//    }
     func cancelFitting() {
         logger.info("cancel fitting")
     }
@@ -336,6 +347,6 @@ class DrawSceneView: UIView {
         delegate?.fitEllipse(with: points)
         setNeedsDisplay()
     }
-    
+
 }
 

@@ -16,6 +16,7 @@ protocol EllipseViewControllerDelegate: AnyObject {
 
 protocol EllipseViewDelegate: AnyObject {
     func handlePan(_ gesture: UIPanGestureRecognizer)
+    func viewContains(point: CGPoint) -> Bool
 }
 
 class CGPointBox: NSObject {
@@ -29,20 +30,17 @@ class CGPointBox: NSObject {
 }
 
 class EllipseViewController: UIViewController, UIEditMenuInteractionDelegate, UIGestureRecognizerDelegate, EllipseViewDelegate {
-    
     var ellipseView: EllipseView!
     var state: EllipseState
-//    enum PanAngle {
-//        /// fixed(angle, startLocation, axisVector)
-//        ///  - angle: the angle of pan direction (can only be `0`°, `90`°, `180`°, `-90`°)
-//        ///  - startLocation: the location from which the scale factor is calculated (e.g. when pan rightwards, the horizontal scale factor is calculated from the ratio `(currentLocation.x - startLocation.x) / (endLocation.x - startLocation.x))`
-//        ///  - axisVector: the normalized vector of the axis along which the pan direction is fixed
-//        case fixed(Angle, start: CGPoint, axis: CGPoint)
-//        /// free(withRespectTo)
-//        ///  - withRespectTo: the scale factor is calculated from the component-wise ratio `(currentLocation - withRespectTo) / (startLocation - withRespectTo)`, where `currentLocation` is the current location of the pan gesture, `startLocation` is the location when the pan gesture began
-//        case free(withRespectTo: CGPoint, start: CGPoint)
+//    var pinchPolicy: EllipseView.EditingPolicy {
+//        get {
+//            ellipseView.editingPolicy
+//        }
+//        set {
+//            ellipseView.editingPolicy = newValue
+//            ellipseView.setNeedsDisplay()
+//        }
 //    }
-//    var panAngle: PanAngle? = nil // only for pan stretching
     weak var delegate: EllipseViewControllerDelegate? // usually the parent view controller
     weak var blockUndoRedoButtonDelegate: BlockUndoRedoButtonDelegate?
     init(center: CGPoint, a: CGFloat, b: CGFloat, color: UIColor, angle: Angle = .zero) {
@@ -85,12 +83,16 @@ class EllipseViewController: UIViewController, UIEditMenuInteractionDelegate, UI
     
     func addGestureRecognizers(to view: UIView) {
         // 手势
-        view.addGestureRecognizer(
-            UIPanGestureRecognizer(target: view, action: #selector(EllipseView.handlePan(_:))))
+        let pan = UIPanGestureRecognizer(target: view, action: #selector(EllipseView.handlePan(_:)))
+        pan.delegate = self
+        view.addGestureRecognizer(pan)
+        
         let tap = UITapGestureRecognizer(target: self, action: #selector(handleTap(_:)))
         view.addGestureRecognizer(tap)
+        
         let rotation = UIRotationGestureRecognizer(target: self, action: #selector(handleRotation(_:)))
         view.addGestureRecognizer(rotation)
+        
         let pinch = UIPinchGestureRecognizer(target: self, action: #selector(handlePinch(_:)))
         pinch.delegate = self
         view.addGestureRecognizer(pinch)
@@ -123,6 +125,10 @@ class EllipseViewController: UIViewController, UIEditMenuInteractionDelegate, UI
             assert(state.translation == .zero)
             gesture.setTranslation(.zero, in: view.superview)
             blockUndoRedoButtonDelegate?.disableUndoRedoButton(who: self)
+            if !(view as! EllipseView).selected {
+                gesture.state = .failed
+                return
+            }
         case .changed:
             state.translation += gesture.translation(in: view.superview)
             view.center = state.center + state.translation
@@ -149,6 +155,13 @@ class EllipseViewController: UIViewController, UIEditMenuInteractionDelegate, UI
         return gestureRecognizer is UIPinchGestureRecognizer && otherGestureRecognizer is UIRotationGestureRecognizer && (view as! EllipseView).editingPolicy == .pinchHV
     }
     
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        if gestureRecognizer is UIPanGestureRecognizer {
+            return (view as! EllipseView).selected
+        }
+        return true
+    }
+    
 //    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRequireFailureOf otherGestureRecognizer: UIGestureRecognizer) -> Bool {
 //        return gestureRecognizer is UIPinchGestureRecognizer &&
 //            (view as! EllipseView).editingPolicy != .pinchHV &&
@@ -161,13 +174,11 @@ class EllipseViewController: UIViewController, UIEditMenuInteractionDelegate, UI
         case .began:
             assert(state.deltaA == .zero && state.deltaB == .zero)
             gesture.scale = 1
-//            logger.log("pinch: \(gesture.numberOfTouches) touches")
             blockUndoRedoButtonDelegate?.disableUndoRedoButton(who: self)
-//            (0..<gesture.numberOfTouches).map { gesture.location(ofTouch: $0, in: view) }.first { !insideEllipse($0) }.map {
-//                gesture.state = .failed
-//                logger.debug("pinch: at \($0) outside the ellipse")
-//                return
-//            }
+            if !(view as! EllipseView).selected {
+                gesture.state = .failed
+                return
+            }
         case .changed:
             if (view as! EllipseView).editingPolicy != .pinchVertical {
                 state.deltaA += (gesture.scale - 1) * state.a
@@ -208,6 +219,10 @@ class EllipseViewController: UIViewController, UIEditMenuInteractionDelegate, UI
             gesture.rotation = 0
             logger.log("rotate: \(gesture.numberOfTouches) touches")
             blockUndoRedoButtonDelegate?.disableUndoRedoButton(who: self)
+            if !(view as! EllipseView).selected {
+                gesture.state = .failed
+                return
+            }
         case .changed:
             state.deltaAngle += .radians(gesture.rotation)
             view.transform = CGAffineTransform(rotationAngle: state.currentAngle.radians)
@@ -254,30 +269,41 @@ class EllipseViewController: UIViewController, UIEditMenuInteractionDelegate, UI
     @objc func redo() {
         undoManager?.redo()
     }
+    
+    func viewContains(point: CGPoint) -> Bool {
+        return self.insideEllipse(point)
+    }
+    
     func resetEllipsePinchPolicy() {
-        (self.view as! EllipseView).editingPolicy = .pinchHV
+        (view as! EllipseView).editingPolicy = .unselected
         self.view.setNeedsDisplay()
     }
 }
 
 class EllipseView: UIView {
     enum EditingPolicy {
+        case unselected
         case pinchHV
         case pinchHorizontal
         case pinchVertical
         mutating func toggle() {
             switch self {
+            case .unselected:
+                self = .pinchHV
             case .pinchHV:
                 self = .pinchHorizontal
             case .pinchHorizontal:
                 self = .pinchVertical
             case .pinchVertical:
-                self = .pinchHV
+                self = .unselected
             }
         }
     }
     var editingPolicy: EditingPolicy = .pinchHV
     var cornerRadius: CGFloat = 20
+    var selected: Bool {
+        self.editingPolicy != .unselected
+    }
     weak var blockUndoRedoButtonDelegate: BlockUndoRedoButtonDelegate?
     weak var delegate: EllipseViewDelegate?
     var corners: [CGPoint] {
@@ -297,12 +323,6 @@ class EllipseView: UIView {
             CGPoint(x: bounds.maxX, y: bounds.minY)
         ]
     }
-    enum StretchDirection {
-        case horizontal(from: CGPoint)
-        case vertical(from: CGPoint)
-        case free(from: CGPoint, antipodeCorner: CGPoint)
-    }
-    var stretchDirection: StretchDirection? = nil
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -317,6 +337,16 @@ class EllipseView: UIView {
         guard let context = UIGraphicsGetCurrentContext() else { return }
         context.setFillColor(UIColor.black.cgColor)
         context.fillEllipse(in: rect)
+        
+        if selected {
+            let width = 2.0
+            context.setStrokeColor(UIColor.yellow.cgColor)
+            context.setLineWidth(width)
+            // dash line ellpise
+            context.setLineDash(phase: 0, lengths: [10, 10])
+            context.addPath(UIBezierPath(ovalIn: rect.insetBy(dx: width / 2, dy: width / 2)).cgPath)
+            context.strokePath()
+        }
         // bounding box
         switch editingPolicy {
         case .pinchHorizontal:
@@ -391,60 +421,22 @@ class EllipseView: UIView {
     
     @objc func handlePan(_ gesture: UIPanGestureRecognizer) {
         assert(gesture.view === self)
-        switch (gesture.state, stretchDirection) {
-        case (.began, _):
+        switch gesture.state {
+        case .began:
             gesture.setTranslation(.zero, in: self)
-//            if editingPolicy {
-//                let location = gesture.location(in: self)
-//                let velocity = gesture.velocity(in: self)
-//                for (i, corner) in corners.enumerated() {
-//                    if distance(from: location, to: corner) < cornerRadius {
-//                        blockUndoRedoButtonDelegate?.disableUndoRedoButton(who: self)
-//                        logger.debug("panned: on corner \(i) at \(corner), velocity=\(velocity)")
-//                        let angle = atan2(velocity.y, velocity.x)
-//                        switch angle / CGFloat.pi * 180 {
-//                        case -10..<10, -180..<(-170), 170..<180:
-//                            stretchDirection = .horizontal(from: location)
-//                        case 80..<100, -100..<(-80):
-//                            stretchDirection = .vertical(from: location)
-//                        default:
-//                            stretchDirection = .free(from: location, antipodeCorner: antipodeCorner[i])
-//                        }
-//                        return
-//                    }
-//                }
-//            } else {
-                stretchDirection = nil
-                self.delegate?.handlePan(gesture)
-//            }
-        case (_, .none):
             self.delegate?.handlePan(gesture)
-        case (.changed, .some(let direction)):
-            let location = gesture.location(in: self)
-            let translation = gesture.translation(in: self)
-            switch direction {
-            case .horizontal(let from):
-                let dx = location.x - from.x;
-                bounds = bounds.insetBy(dx: -dx / 2, dy: 0)
-//                bounds.origin.x += dx / 2
-            case .vertical(let from):
-                let dy = location.y - from.y;
-                bounds = bounds.insetBy(dx: 0, dy: -dy / 2)
-//                bounds.origin.y += dy / 2
-            case .free(let from, let antipodeCorner):
-                let dx = location.x - from.x
-                let dy = location.y - from.y
-                bounds = bounds.insetBy(dx: -dx / 2, dy: -dy / 2)
-//                bounds.origin.x += dx / 2
-//                bounds.origin.y += dy / 2
-            }
-            gesture.setTranslation(.zero, in: self)
-        case (.ended, .some(_)):
-            stretchDirection = nil
-            blockUndoRedoButtonDelegate?.enableUndoRedoButton(who: self)
-        default:
-            blockUndoRedoButtonDelegate?.enableUndoRedoButton(who: self)
-            break
+        case _:
+            self.delegate?.handlePan(gesture)
         }
     }
+//    override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+//        let view = super.hitTest(point, with: event)
+//        guard view === self else { return view }
+//        switch self.delegate?.viewContains(point: point) {
+//        case .some(true) where self.selected:
+//            return self
+//        case _:
+//            return nil
+//        }
+//    }
 }

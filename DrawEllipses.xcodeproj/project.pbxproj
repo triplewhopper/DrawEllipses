@@ -29,6 +29,7 @@
 		0F36E64C2C4A2F6800E80792 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0F36E6572C4A313A00E80792 /* DrawSceneViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrawSceneViewController.swift; sourceTree = "<group>"; };
 		0F36E6592C4A317C00E80792 /* EllipseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EllipseViewController.swift; sourceTree = "<group>"; };
+		0F592A132C4D1BC300284EF7 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -46,6 +47,7 @@
 		0F36E6322C4A2F6700E80792 = {
 			isa = PBXGroup;
 			children = (
+				0F592A132C4D1BC300284EF7 /* README.md */,
 				0F36E63D2C4A2F6700E80792 /* DrawEllipses */,
 				0F36E63C2C4A2F6700E80792 /* Products */,
 			);
@@ -321,7 +323,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = jsr.DrawEllipses;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -354,7 +356,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = jsr.DrawEllipses;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
